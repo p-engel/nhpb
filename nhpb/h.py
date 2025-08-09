@@ -39,10 +39,10 @@ class Lindbladian():
         """
         modify parameters
         input - double
-            det - detuning between modes
             g - coupling constant betweem modes
+            det - detuning between modes
         """
-        self.par = parameters(detuning=det, coupling_const==g);
+        self.par = parameters(coupling_const==g, detuning=det);
 
         return
 
