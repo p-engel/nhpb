@@ -1,4 +1,4 @@
-from h.py import Lindbladian
+from h.py import Lindbladian, Domain, evolve
 
 def main():
     """
@@ -9,10 +9,11 @@ def main():
     g = 0.005*67.5;  # [meV]
     det = 0;    # [meV]
     try:
-        system = Lindbladian();
-        system.update_pars(g, det);
-        N = system.occupation();    # average occupation number
-        g2 = system.correlation();    # second order correlation
+        x = Domain();
+        pars = Parameter(g, det);
+        system = Lindbladian(pars);
+        # system.update_pars(g, det);
+        N, g2 = evolve(x, system);
         print(N, g2);
     except (TypeError, ValueError, ZeroDivisionError, AttributeError) as e:
         print(f"Error running calculation: {e}");
