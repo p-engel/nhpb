@@ -40,3 +40,21 @@ class Operator():
 def psi0(par)
     """intial state"""
     return tensor(basis(par.N, par.na), basis(2, par.nsm));
+
+def evolve():
+    """Evolve density matrix in time"""
+    psi0 = psi0(Parameter());
+    op = Operator();
+    dom = Domain();
+    tlist = dom.t();
+    wlist = dom.w();
+    Na = op.mode1()*op.mode1().dag();
+    Nsm = op.mode2()*op.mode2().dag();
+
+    occupation = [];
+    for w in wlist:
+        H = op.JC_H(w);
+        occupation.append(mesolve(H, psi0, tlist, self._cops, [Na, Nsm]));
+    return occupation
+
+############1234567
