@@ -1,7 +1,7 @@
 # Definitions
 from qutip import liouvillian, mesolve
 
-from def.py import Operator, evolve
+from def.py import Operator, Evolve
 
 class Lindbladian(Operator):
     def __init__(self, hamiltonian=None, collapse_ops=None):
@@ -39,4 +39,4 @@ class Lindbladian(Operator):
     
     def dynamics(self):
         """Evolve density matrix in time"""
-        occupation = evolve();
+        return Evolve(Domain())

@@ -1,14 +1,12 @@
-# define functions
+# definitions
+
+pars = Parameter();
 
 class Operator():
-    def __init__(self, params):
-        """
-        params: object holding system parameters
-        """
-        self.par = params;
+    def __init__(self, pars):
         # Precompute operators
-        self._a = tensor(destroy(self.par.N), qeye(2));  # mode 1 (cavity)
-        self._sm = tensor(qeye(self.par.N), destroy(2)); # mode 2 (qubit)
+        self._a = tensor(destroy(pars.N), qeye(2));  # mode 1 (cavity)
+        self._sm = tensor(qeye(pars.N), destroy(2)); # mode 2 (qubit)
 
     def update_operator(self, mode1, mode2):
         self._a = mode1;
@@ -26,35 +24,39 @@ class Operator():
         Nsm = self._sm * self._sm.dag();
         X = self._a.dag()*self._sm + self._a*self._sm.dag();
         D = self._sm + self._sm.dag();
-        return (  self.par.det_wa(w) * Na
-                + self.par.det_ws(w) * Nsm 
-                + self.par.g * X 
-                + self.par.v * D  );
+        return (  pars.det_wa(w) * Na
+                + pars.det_ws(w) * Nsm 
+                + pars.g * X 
+                + pars.v * D  );
 
     def cops(self):
         """collapse operator with n_th = 0"""
-        sqrt_kappa = self.par.kappa ** 0.5;
-        sqrt_gamma = self.par.gamma ** 0.5;
+        sqrt_kappa = pars.kappa ** 0.5;
+        sqrt_gamma = pars.gamma ** 0.5;
         return [sqrt_kappa*self._a, sqrt_gamma*self._sm];
 
-def psi0(par)
+def state(pars):
     """intial state"""
-    return tensor(basis(par.N, par.na), basis(2, par.nsm));
+    return tensor(basis(pars.N, pars.na), basis(2, pars.nsm));
 
-def evolve():
+class Evolve():
     """Evolve density matrix in time"""
-    psi0 = psi0(Parameter());
-    op = Operator();
-    dom = Domain();
-    tlist = dom.t();
-    wlist = dom.w();
-    Na = op.mode1()*op.mode1().dag();
-    Nsm = op.mode2()*op.mode2().dag();
+    def __init__(self)
+    self._psi0 = state(pars);
+    self._op = Operator();
+    self._dom = Domain(pars);
 
-    occupation = [];
-    for w in wlist:
-        H = op.JC_H(w);
-        occupation.append(mesolve(H, psi0, tlist, self._cops, [Na, Nsm]));
-    return occupation
+    def occupation():
+        """occupation number in modes"""
+        Na = self.op.mode1() * self.op.mode1().dag();
+        Nsm = self.op.mode2() * self.op.mode2().dag();            
+        res = [];
+        for w in self.dom.w():
+            H = op.JC_H(w);
+            res.append(mesolve(H, psi0, self.dom.t(), self._cops, [Na, Nsm]));
+        return res
+
+    def correlation():
+        return
 
 ############1234567
