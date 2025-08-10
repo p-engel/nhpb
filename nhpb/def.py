@@ -1,7 +1,5 @@
 # definitions
 
-pars = Parameter();
-
 class Operator():
     def __init__(self, pars):
         # Precompute operators
@@ -43,7 +41,7 @@ class Evolve():
     """Evolve density matrix in time"""
     def __init__(self)
     self._psi0 = state(pars);
-    self._op = Operator();
+    self._op = Operator(pars);
     self._dom = Domain(pars);
 
     def occupation():
