@@ -6,11 +6,7 @@ class Lindbladian():
 	Struct for Lindbladian
     """
     def __init__(self, par):
-        """
-        default constructor, with private data as self
-        """
         self.p = par;  [array, double]
-
 
     def psi0(self)
         """
@@ -20,6 +16,5 @@ class Lindbladian():
                     basis(2, self.par.nsm));
 
         return psi0
-
 
 ####    output = mesolve(H, psi0, tlist, c_ops, [Na, Nsm])

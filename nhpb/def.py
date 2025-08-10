@@ -3,17 +3,14 @@
 class Operator():
     par = Parameter();
 
-
     def __init__(self):
         """Hilbert space"""
         self.__basis1 = destroy(par.N);
         self.__basis2 = destroy(2);
 
-
     def update_Hilbert(basis1, basis2):
         self.__basis1 = basis1;
         self.__basis2 = basis2;
-
 
     def mode1(self):
         """cavity mode operator"""
@@ -21,13 +18,11 @@ class Operator():
         
         return a
 
-
     def mode2(self):
         """qubit mode operator"""
         sm = tensor(qeye(par.N), self.__basis2);
         
         return sm
-
 
     def H(self, w):
         """
@@ -42,7 +37,6 @@ class Operator():
         H = par.det_wa(w)*Na + par.det_ws(w)*Nsm + par.g*X + par.v*D;
         
         return H
-
 
     def cops(self):
         """collapse operator"""
