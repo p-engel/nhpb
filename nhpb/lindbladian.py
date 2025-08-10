@@ -1,7 +1,9 @@
-# Definitions
+# delcaration in namespace of type Lindbladian
+
 from qutip import liouvillian, mesolve
 
-from def.py import Operator, Evolve
+from def.py import Operator, Evolve, Domain
+from par.py import Parameter
 
 class Lindbladian(Operator):
     def __init__(self, hamiltonian=None, collapse_ops=None):
