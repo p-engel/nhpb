@@ -1,7 +1,5 @@
 # delcaration in namespace of type Lindbladian
 
-from qutip import 
-
 from def.py import Operator, Evolve, Domain
 
 class Lindbladian(Operator):
@@ -37,7 +35,15 @@ class Lindbladian(Operator):
         if self._L is None:
             self.build();
         return self._L @ rho.full().ravel()  # returns vectorized form
-    
+
     def dynamics(self):
-        """Evolve density matrix in time"""
+        """Evolve density matrix"""
         return Evolve(Domain())
+    
+    def occupation(self):
+        """average occupation number in time"""
+        return self.dynamics().occupation(self.occupation1, self.occupation2)
+
+    def correlation(self):
+        """compute second order correlation"""
+        return self.dynamics().correlation()

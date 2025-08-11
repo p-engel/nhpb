@@ -45,17 +45,15 @@ class Operator():
 
 class Evolve():
     """Evolve density matrix in time"""
-    def __init__(self, occupation1, occupation2, domain)
+    def __init__(self, domain)
         """
         occupation - number operator in mode 1
         domain - obj-type with frequency and time list
         """
         self._psi0 = tensor(basis(par.N, par.na), basis(2, par.nsm));
         self._dom = domain;
-        self._Na = occupation1;
-        self._Nsm = occupation2;
 
-    def occupation(self):
+    def occupation(self, Na, Nsm):
         """occupation number in modes"""
         res = [];
         for w in self.dom.w():
@@ -63,7 +61,7 @@ class Evolve():
             res.append(mesolve(H, psi0, self.dom.t(), self._cops, [Na, Nsm]));
         return res
 
-    def correlation():
+    def correlation(self):
         return
 
 ############1234567
