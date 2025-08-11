@@ -1,6 +1,6 @@
 # delcaration in namespace of type Lindbladian
 
-from qutip import liouvillian, mesolve
+from qutip import 
 
 from def.py import Operator, Evolve, Domain
 

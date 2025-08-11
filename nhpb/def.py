@@ -1,4 +1,7 @@
 # definitions
+
+from qutip import tensor, destroy, qeye, mesolve, liouvillian 
+
 import par
 
 class Operator():
@@ -17,16 +20,21 @@ class Operator():
     def mode2(self):
         return self._sm
 
+    def occupation1(self):
+        """number operator in mode 1"""
+        return self._a.dag() * self._a;
+
+    def occupation2(self):
+        return self._sm.dag() * self._sm;
+
     def JC_H(self, w):
         """Jaynes-Cummings Hamiltonian in RWA"""
-        Na = self._a * self._a.dag();   # number operator
-        Nsm = self._sm * self._sm.dag();
-        X = self._a.dag()*self._sm + self._a*self._sm.dag();
-        D = self._sm + self._sm.dag();
-        return (  par.det_wa(w) * Na
-                + par.det_ws(w) * Nsm 
-                + par.g * X 
-                + par.v * D  );
+        coupling = self._a.dag()*self._sm + self._a*self._sm.dag();
+        displace = self._sm + self._sm.dag();
+        return (  par.det_wa(w) * self.occupation1()
+                + par.det_ws(w) * self.occupation2() 
+                + par.g * coupling
+                + par.v * displace  );
 
     def cops(self):
         """collapse operator with n_th = 0"""
@@ -37,18 +45,21 @@ class Operator():
 
 class Evolve():
     """Evolve density matrix in time"""
-    def __init__(self)
-    self._psi0 = tensor(basis(par.N, par.na), basis(2, par.nsm));
-    self._op = Operator();
-    self._dom = Domain();
+    def __init__(self, occupation1, occupation2, domain)
+        """
+        occupation - number operator in mode 1
+        domain - obj-type with frequency and time list
+        """
+        self._psi0 = tensor(basis(par.N, par.na), basis(2, par.nsm));
+        self._dom = domain;
+        self._Na = occupation1;
+        self._Nsm = occupation2;
 
-    def occupation():
+    def occupation(self):
         """occupation number in modes"""
-        Na = self.op.mode1() * self.op.mode1().dag();
-        Nsm = self.op.mode2() * self.op.mode2().dag();            
         res = [];
         for w in self.dom.w():
-            H = op.JC_H(w);
+            H = self.op.JC_H(w);
             res.append(mesolve(H, psi0, self.dom.t(), self._cops, [Na, Nsm]));
         return res
 
