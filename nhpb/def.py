@@ -5,7 +5,7 @@ from qutip import tensor, destroy, qeye, mesolve, liouvillian
 import par
 
 class Operator():
-    def __init__(self, par):
+    def __init__(self):
         # Precompute operators
         self._a = tensor(destroy(par.N), qeye(2));  # mode 1 (cavity)
         self._sm = tensor(qeye(par.N), destroy(2)); # mode 2 (qubit)
