@@ -87,7 +87,8 @@ class Evolve():
 
     def occupation(self, H, cops, Na, Nsm):
         """
-        occupation number in modes
+        H -- class Operator, JC Hamiltonian
+        cops --  class Operator, collapse operator
         Na, Nsm -- class, Operator, occupation number operator
         """
         res = [];
