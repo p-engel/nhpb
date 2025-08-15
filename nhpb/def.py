@@ -5,8 +5,8 @@ from qutip import tensor, destroy, qeye, mesolve, liouvillian
 
 import par
 
-class X():
-    """parse par file and create time and frequency grid for sim"""
+class Par():
+    """scaled parameters"""
     def __init__(self, freq=None):
         """
         scale parameters by fastest dissipative rate value
@@ -17,23 +17,12 @@ class X():
         self.kappa = par.kappa / self.wr
         self.g = par.g / self.wr
         self.v = par.v / self.wr
-        self.ws = _scaled_detuning(par.ws)
-        self.wc = _scaled_detuning(par.wc)
+        self.det_wc = _scaled_detuning(par.wc)
+        self.det_ws = _scaled_detuning(par.ws)
 
     def _scaled_detuning(freq0):
         return [ (freq0 - freq)/self.wr for freq in [par.ws, par.wc] ]
 
-    def times():
-        N = 10; # number of oscillations/decay
-        n = 20; # number of points per oscillations/decay
-        tau_max = max(1/self.g, 1/self.gamma);  # longest life time
-        t_max = N * tau;
-        w_max = max(self.gamma, self.g, self.v, self.ws, self.wc)
-        T_min = 2 * math.pi / w_max;
-        dt = T_min / n;
-        N_step = int(t_max / dt);
-        return [i*dt for i in range(N_steps + 1)]
-        
 
 class Operator():
     def __init__(self):
@@ -58,38 +47,59 @@ class Operator():
     def occupation2(self):
         return self._sm.dag() * self._sm;
 
-    def JC_H(self, w):
-        """Jaynes-Cummings Hamiltonian in RWA"""
+    def JC_H(self, p):
+        """
+        Jaynes-Cummings Hamiltonian in RWA
+        p -- class Par
+        """
         coupling = self._a.dag()*self._sm + self._a*self._sm.dag();
         displace = self._sm + self._sm.dag();
-        return (  par.det_wa(w) * self.occupation1()
-                + par.det_ws(w) * self.occupation2() 
-                + par.g * coupling
-                + par.v * displace  );
 
-    def cops(self):
+        H = [];
+        for i in range(p.ws):
+        H.append( p.det_wc[i] * self.occupation1()
+                    + p.det_ws[i] * self.occupation2() 
+                    + p.g * coupling
+                    + p.v * displace );
+        return H
+
+    def cops(self, p):
         """collapse operator with n_th = 0"""
-        sqrt_kappa = par.kappa ** 0.5;
-        sqrt_gamma = par.gamma ** 0.5;
+        sqrt_kappa = p.kappa ** 0.5;
+        sqrt_gamma = p.gamma ** 0.5;
         return [sqrt_kappa*self._a, sqrt_gamma*self._sm];
 
 
 class Evolve():
     """Evolve density matrix in time"""
-    def __init__(self, domain)
+    def __init__(self, p)
         """
-        occupation - number operator in mode 1
-        domain - obj-type with frequency and time list
+        p -- class Par, parameters
+        hamiltonian -- class Operator, hamiltonian
+        collaps_ops -- class Operator, collaps operator
         """
         self._psi0 = tensor(basis(par.N, par.na), basis(2, par.nsm));
-        self._dom = domain;
+        self._t = _times(p);
 
-    def occupation(self, Na, Nsm):
-        """occupation number in modes"""
+    def _times(p):
+        N = 10; # number of oscillations/decay
+        n = 20; # number of points per oscillations/decay
+        tau_max = max(1/p.g, 1/p.gamma);  # longest life time
+        t_max = N * tau;
+        w_max = max(p.gamma, p.g, p.v, p.ws, p.wc)
+        T_min = 2 * math.pi / w_max;
+        dt = T_min / n;
+        N_step = int(t_max / dt);
+        return [i*dt for i in range(N_steps + 1)]
+
+    def occupation(self, H, cops, Na, Nsm):
+        """
+        occupation number in modes
+        Na, Nsm -- class, Operator, occupation number operator
+        """
         res = [];
-        for w in self.dom.w():
-            H = self.op.JC_H(w);
-            res.append(mesolve(H, psi0, self.dom.t(), self._cops, [Na, Nsm]));
+        for w in range(H):
+            res.append(mesolve(H[w], psi0, self._t, cops, [Na, Nsm]));
         return res
 
     def correlation(self):
