@@ -1,18 +1,18 @@
 # delcaration in namespace of type Lindbladian
 
-from def.py import Operator, Evolve, Domain
+from def.py import Operator, Evolve, Par
 
 class Lindbladian(Operator):
+    p = Par();  # parameter
+
     def __init__(self, hamiltonian=None, collapse_ops=None):
         """
         hamiltonian: (Qobj)
-        state: initial state (Qobj)
         cops: list of collapse operators (Qobj)
-        dim: optional, system dimension for validation
         """
-        self._H = hamiltonian if hamiltonian is not None else self.JC_H(w);
-        self._cops = collapse_ops if collapse_ops is not None else self.cops();
-        self._dim = hamiltonian.shape[0] or Operator.JC_H()[0];
+        self._H = hamiltonian if hamiltonian is not None else self.JC_H(p);
+        self._cops = collapse_ops if collapse_ops is not None else self.cops(p);
+        # self._dim = hamiltonian.shape[0] or ;
         self._L = None;  # Cache for the superoperator
     
     def build(self):
@@ -38,11 +38,12 @@ class Lindbladian(Operator):
 
     def dynamics(self):
         """Evolve density matrix"""
-        return Evolve(Domain())
+        return Evolve(p)
     
     def occupation(self):
         """average occupation number in time"""
-        return self.dynamics().occupation(self.occupation1, self.occupation2)
+        return self.dynamics().occupation(self.H, cops,
+                                            self.occupation1, self.occupation2)
 
     def correlation(self):
         """compute second order correlation"""
