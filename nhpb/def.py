@@ -34,18 +34,13 @@ class Operator():
         self._a = mode1;
         self._sm = mode2;
 
-    def mode1(self):
-        return self._a
+    def mode1(self): return self._a
 
-    def mode2(self):
-        return self._sm
+    def mode2(self): return self._sm
 
-    def occupation1(self):
-        """number operator in mode 1"""
-        return self._a.dag() * self._a;
+    def occupation1(self): return self._a.dag() * self._a;
 
-    def occupation2(self):
-        return self._sm.dag() * self._sm;
+    def occupation2(self): return self._sm.dag() * self._sm;
 
     def JC_H(self, p):
         """
@@ -102,7 +97,6 @@ class Evolve():
             res.append(mesolve(H[w], psi0, self._t, cops, [Na, Nsm]));
         return res
 
-    def correlation(self):
-        return
+    def correlation(self): return
 
 ############1234567
