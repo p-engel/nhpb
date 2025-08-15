@@ -70,11 +70,9 @@ class Evolve():
     def __init__(self, p)
         """
         p -- class Par, parameters
-        hamiltonian -- class Operator, hamiltonian
-        collaps_ops -- class Operator, collaps operator
         """
         self._psi0 = tensor(basis(par.N, par.na), basis(2, par.nsm));
-        self._t = _times(p);
+        self._t = _times(p);    # time domain
 
     def _times(p):
         N = 10; # number of oscillations/decay
@@ -94,7 +92,7 @@ class Evolve():
         """
         res = [];
         for w in range(H):
-            res.append(mesolve(H[w], psi0, self._t, cops, [Na, Nsm]));
+            res.append(mesolve(H[w], self._psi0, self._t, cops, [Na, Nsm]));
         return res
 
     def correlation(self): return
