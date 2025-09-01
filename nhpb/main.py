@@ -8,7 +8,7 @@ def main():
     try:
         L = Lindbladian();
         N = L.occupation()
-        print(N.expect[0], N.expect[1]);
+        print(N[0].expect[0]);
     except (TypeError, ValueError, ZeroDivisionError, AttributeError) as e:
         print(f"Error running calculation: {e}");
     except Exception as e:

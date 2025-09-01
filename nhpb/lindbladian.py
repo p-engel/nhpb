@@ -1,34 +1,21 @@
 # delcaration in namespace of type Lindbladian
 
-from def.py import Operator, Evolve, Par
+from definitions import Operator, Evolve, Par
 
 class Lindbladian(Operator):
-    p = Par();  # parameter
-
-    def __init__(self, hamiltonian=None, collapse_ops=None):
+    def __init__(self):
         """
         hamiltonian: (Qobj)
         cops: list of collapse operators (Qobj)
         """
-        self._H = hamiltonian if hamiltonian is not None else self.JC_H(p);
-        self._cops = collapse_ops if collapse_ops is not None else self.cops(p);
-        # self._dim = hamiltonian.shape[0] or ;
+        super().__init__()
+        self.p = Par();  # parameter
         self._L = None;  # Cache for the superoperator
     
     def build(self):
         """Construct the Lindbladian superoperator"""
-        self._L = liouvillian(self._H, self._cops);
+        self._L = liouvillian(self.JC_H(self.p), self.cops(self.p));
         return self._L
-    
-    def add_collapse(self, C):
-        """Add a collapse operator"""
-        self.cops.append(C);
-        self._L = None;  # invalidate cached L
-    
-    def set_hamiltonian(self, hamiltonian):
-        """Update the Hamiltonian"""
-        self._H = hamiltonian;
-        self._L = None;
     
     def apply(self, rho):
         """Apply L[rho]"""
@@ -38,12 +25,13 @@ class Lindbladian(Operator):
 
     def dynamics(self):
         """Evolve density matrix"""
-        return Evolve(p)
+        return Evolve(self.p.times())
     
     def occupation(self):
         """average occupation number in time"""
-        return self.dynamics().occupation(self.H, cops,
-                                            self.occupation1, self.occupation2)
+        return self.dynamics().occupation(self.JC_H(self.p), self.cops(self.p),
+                                            self.occupation1(),
+                                            self.occupation2())
 
     def correlation(self):
         """compute second order correlation"""
