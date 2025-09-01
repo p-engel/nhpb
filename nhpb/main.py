@@ -1,4 +1,4 @@
-from lindbladian import Lindbladian 
+from .lindbladian import Lindbladian 
 
 def main():
     """
@@ -11,10 +11,11 @@ def main():
         print(N[0].expect[0]);
     except (TypeError, ValueError, ZeroDivisionError, AttributeError) as e:
         print(f"Error running calculation: {e}");
+        return None
     except Exception as e:
         print(f"Unexpected error: {e}");
 
-    return
+    return N
 
 if __name__ == "__main__":
     main();

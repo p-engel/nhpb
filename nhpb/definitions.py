@@ -3,7 +3,7 @@ import math
 
 from qutip import basis, tensor, destroy, qeye, mesolve, liouvillian 
 
-import par
+from . import par
 
 class Par():
     """scaled parameters"""

@@ -1,6 +1,6 @@
 # delcaration in namespace of type Lindbladian
 
-from definitions import Operator, Evolve, Par
+from .definitions import Operator, Evolve, Par
 
 class Lindbladian(Operator):
     def __init__(self):
