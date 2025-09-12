@@ -12,7 +12,7 @@ class Par():
         scale parameters by fastest dissipative rate value
         freq -- list: float, drive frequency
         """
-        self.wr = max(par.kappa, par.gamma); # ref freq.
+        self.wr = max(par.g, par.kappa, par.gamma); # ref freq.
         self.gamma = par.gamma / self.wr
         self.kappa = par.kappa / self.wr
         self.g = par.g / self.wr
@@ -21,14 +21,14 @@ class Par():
         self.det_ws = [ w / self.wr for w in par.detuning(par.ws) ]
 
     def times(self):
-        N = 10; # number of oscillations/decay
-        n = 20; # number of points per oscillations/decay
+        N = 5; # number of oscillations/decay
+        n = 90; # number of points per oscillations/decay
         tau_max = max(1/self.g, 1/self.gamma);  # longest life time
         t_max = N * tau_max;
         w_max = max(
             self.gamma, self.g, self.v, max(self.det_ws), max(self.det_wc)
         )
-        T_min = 2 * math.pi / w_max;
+        T_min = 1 / w_max;
         dt = T_min / n;
         N_steps = int(t_max / dt);
         return [i*dt for i in range(N_steps + 1)]
