@@ -21,10 +21,11 @@ class Par():
         self.det_ws = [ w / self.wr for w in par.detuning(par.ws) ]
 
     def times(self):
-        N = 5; # number of oscillations/decay
-        n = 90; # number of points per oscillations/decay
-        tau_max = max(1/self.g, 1/self.gamma);  # longest life time
-        t_max = N * tau_max;
+        N = 3*(2*math.pi); # number of cycles [rad]
+        n = 90; # number of points per cycle
+        # tau_max = max(1/self.g, 1/self.gamma);  # longest life time
+        tau = 1/self.g
+        t_max = N * tau;
         w_max = max(
             self.gamma, self.g, self.v, max(self.det_ws), max(self.det_wc)
         )
