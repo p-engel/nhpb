@@ -7,27 +7,32 @@ from . import par
 
 class Par():
     """scaled parameters"""
-    def __init__(self, freq=None):
+    def __init__(self, detuning, coupling_const, kappa, gamma):
         """
-        scale parameters by fastest dissipative rate value
-        freq -- list: float, drive frequency
+        detuning -- detuning between cavity and spin mode [eV]
+        coupling_const -- interaction strength between modes [< 0.9 eV]
+        kappa -- T1 energy dissipative rate of cavity mode [eV]
+        gamma -- T1 energy dissipative rate of spin mode [eV]
         """
-        self.wr = max(par.g, par.kappa, par.gamma); # ref freq.
-        self.gamma = par.gamma / self.wr
-        self.kappa = par.kappa / self.wr
-        self.g = par.g / self.wr
-        self.v = par.v / self.wr
-        self.det_wc = [ w / self.wr for w in par.detuning(par.wc) ]
-        self.det_ws = [ w / self.wr for w in par.detuning(par.ws) ]
+        self.det, self.g, self.kappa, self.gamma = par.assign(
+                detuning, coupling_const, kappa, gamma 
+        )
+        self.det_wc = par.freqs("cavity", self.det)
+        self.det_ws = par.freqs("spin", self.det)
+
+    def scaled(self, val):
+        """scale paremeter value p wrt reference exchange frequency"""
+        wr = max(self.g, self.kappa, self.gamma); # ref freq.
+        return val/wr
 
     def times(self):
         N = 3*(2*math.pi); # number of cycles [rad]
         n = 90; # number of points per cycle
-        # tau_max = max(1/self.g, 1/self.gamma);  # longest life time
-        tau = 1/self.g
+        tau = 1 / self.scaled(self.g)    # coherence (or observation) time length
         t_max = N * tau;
         w_max = max(
-            self.gamma, self.g, self.v, max(self.det_ws), max(self.det_wc)
+            self.scaled(self.gamma), self.scaled(self.kappa), 
+            self.scaled(self.g), self.scaled(self.det)
         )
         T_min = 1 / w_max;
         dt = T_min / n;
@@ -63,38 +68,43 @@ class Operator():
 
         H = [];
         for i in range(len(p.det_ws)):
-            H.append( p.det_wc[i] * self.occupation1()
-                        + p.det_ws[i] * self.occupation2() 
-                        + p.g * coupling
-                        + p.v * displace );
+            H.append( 
+                p.scaled(p.det_wc[i]) * self.occupation1()
+                    + p.scaled(p.det_ws[i]) * self.occupation2() 
+                    + p.scaled(p.g) * coupling
+                    + p.scaled(par.v) * displace 
+            );
         return H
 
     def cops(self, p):
         """collapse operator with n_th = 0"""
-        sqrt_kappa = p.kappa ** 0.5;
-        sqrt_gamma = p.gamma ** 0.5;
+        sqrt_kappa = p.scaled(p.kappa) ** 0.5;
+        sqrt_gamma = p.scaled(p.gamma) ** 0.5;
         return [sqrt_kappa*self._a, sqrt_gamma*self._sm];
 
 
 class Evolve():
     """Evolve density matrix in time"""
-    def __init__(self, times):
+    def __init__(self, times, H, cops):
         """
         times -- list: floats
+        H -- list: qobj
+        cops -- list: qobj
         """
         self._psi0 = tensor(basis(par.N, par.nc), basis(2, par.nsm));
         self._t = times;    # time domain
+        self._H = H
+        self._cops = cops
 
-    def occupation(self, H, cops, Na, Nsm):
+    def occupation(self, Na, Nsm):
         """
-        H -- class Operator, JC Hamiltonian
-        cops --  class Operator, collapse operator
-        Na, Nsm -- class, Operator, occupation number operator
+        Na, Nsm -- qobj, occupation number operator
         """
         res = [];
-        for w in range(len(H)):
+        for w, _ in enumerate(self._H):
             # print("Hamiltonian at index", w, ":", H[w], type(H[w]))
-            res.append(mesolve(H[w], self._psi0, self._t, cops, [Na, Nsm]));
+            res.append(mesolve(self._H[w], self._psi0, self._t, self._cops,
+                [Na, Nsm]));
         return res
 
     def correlation(self): return

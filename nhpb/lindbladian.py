@@ -3,13 +3,13 @@
 from .definitions import Operator, Evolve, Par
 
 class Lindbladian(Operator):
-    def __init__(self):
+    def __init__(self, detuning, coupling_const, kappa, gamma):
         """
         hamiltonian: (Qobj)
         cops: list of collapse operators (Qobj)
         """
         super().__init__()
-        self.p = Par();  # parameter
+        self.p = Par(detuning, coupling_const, kappa, gamma);  # parameter
         self._L = None;  # Cache for the superoperator
     
     def build(self):
@@ -25,13 +25,11 @@ class Lindbladian(Operator):
 
     def dynamics(self):
         """Evolve density matrix"""
-        return Evolve(self.p.times())
+        return Evolve(self.p.times(), self.JC_H(self.p), self.cops(self.p))
     
     def occupation(self):
         """average occupation number in time"""
-        return self.dynamics().occupation(self.JC_H(self.p), self.cops(self.p),
-                                            self.occupation1(),
-                                            self.occupation2())
+        return self.dynamics().occupation(self.occupation1(), self.occupation2())
 
     def correlation(self):
         """compute second order correlation"""
