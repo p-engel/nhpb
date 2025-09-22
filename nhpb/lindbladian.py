@@ -11,17 +11,6 @@ class Lindbladian(Operator):
         super().__init__()
         self.p = Par(detuning, coupling_const, kappa, gamma);  # parameter
         self._L = None;  # Cache for the superoperator
-    
-    def build(self):
-        """Construct the Lindbladian superoperator"""
-        self._L = liouvillian(self.JC_H(self.p), self.cops(self.p));
-        return self._L
-    
-    def apply(self, rho):
-        """Apply L[rho]"""
-        if self._L is None:
-            self.build();
-        return self._L @ rho.full().ravel()  # returns vectorized form
 
     def dynamics(self):
         """Evolve density matrix"""
@@ -29,8 +18,8 @@ class Lindbladian(Operator):
     
     def occupation(self):
         """average occupation number in time"""
-        return self.dynamics().occupation(self.occupation1(), self.occupation2())
+        return self.dynamics().occupation(self.Na(), self.Nsm())
 
     def correlation(self):
         """compute second order correlation"""
-        return self.dynamics().correlation()
+        return self.dynamics().correlation(self._a, self._sm)

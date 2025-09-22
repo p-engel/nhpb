@@ -1,7 +1,8 @@
 # definitions
 import math
 
-from qutip import basis, tensor, destroy, qeye, mesolve, liouvillian 
+from qutip import basis, tensor, destroy, qeye, mesolve, liouvillian, \
+correlation_3op_2t
 
 from . import par
 
@@ -50,29 +51,28 @@ class Operator():
         self._a = mode1;
         self._sm = mode2;
 
-    def mode1(self): return self._a
+    def Na(self): return self._a.dag() * self._a;  # occupation number operator
 
-    def mode2(self): return self._sm
+    def Nsm(self): return self._sm.dag() * self._sm;
+    
+    def X(self): 
+        """coupling operator"""
+        return self._a.dag()*self._sm + self._a*self._sm.dag()
 
-    def occupation1(self): return self._a.dag() * self._a;
-
-    def occupation2(self): return self._sm.dag() * self._sm;
+    def D(self): return self._sm + self._sm.dag();  # displacement operator
 
     def JC_H(self, p):
         """
         Jaynes-Cummings Hamiltonian in RWA
         p -- class Par
         """
-        coupling = self._a.dag()*self._sm + self._a*self._sm.dag();
-        displace = self._sm + self._sm.dag();
-
         H = [];
         for i in range(len(p.det_ws)):
             H.append( 
-                p.scaled(p.det_wc[i]) * self.occupation1()
-                    + p.scaled(p.det_ws[i]) * self.occupation2() 
-                    + p.scaled(p.g) * coupling
-                    + p.scaled(par.v) * displace 
+                p.scaled(p.det_wc[i]) * self.Na()
+                    + p.scaled(p.det_ws[i]) * self.Nsm() 
+                    + p.scaled(p.g) * self.X()
+                    + p.scaled(par.v) * self.D()
             );
         return H
 
@@ -107,6 +107,33 @@ class Evolve():
                 [Na, Nsm]));
         return res
 
-    def correlation(self): return
+    def correlation(self, op_1, op_2): 
+        """
+        two-time second-order correlation function
+        <op_n(t)op_ndag(t+tau)op_n(t+tau)op_n(t)>
+        Input
+        op_n - qobj
+        Output
+        second order correlation at tau=0 -- list of list of type: qutip
+        corr_mat : 1d-array, for op_n (first index) 
+            at specified drive frequency (second index)
+        """
+        tau = [0]; # decoherence times
+        a_ops = [op_1, op_2]
+        b_ops = [op_1.dag()*op_1, op_2.dag()*op_2]
+
+        corr_w = [];  # correlation versus drive freq
+        corr_op = [];  # versus operator type
+        for i, a_op in enumerate(a_ops):
+            for w, _ in enumerate(self._H):
+                corr_w.append(
+                    correlation_3op_2t(
+                        self._H[w], self._psi0, self._t, tau,
+                        self._cops, a_op, b_ops[i], a_op
+                    )[:,0]
+                );
+            corr_op.append(corr_w);
+            corr_w = []
+        return corr_op
 
 ############1234567
