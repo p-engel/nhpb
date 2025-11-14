@@ -141,4 +141,9 @@ class Evolve():
             corr_w = []
         return corr_op
 
+class Kerr_H():
+    """The Kerr-Hamiltonian"""
+    def __init__(self, wq, ):
+
+
 ############1234567
