@@ -1,5 +1,5 @@
 # definitions
-import math
+import math, cmath
 
 from qutip import basis, tensor, destroy, qeye, mesolve, liouvillian, \
 correlation_3op_2t
@@ -8,15 +8,15 @@ from . import par
 
 class Par():
     """scaled parameters"""
-    def __init__(self, detuning, coupling_const, kappa, gamma):
+    def __init__(self, detuning, coupling_const, kappa, gamma, drive, phase):
         """
         detuning -- detuning between cavity and spin mode [eV]
         coupling_const -- interaction strength between modes [< 0.9 eV]
         kappa -- T1 energy dissipative rate of cavity mode [eV]
         gamma -- T1 energy dissipative rate of spin mode [eV]
         """
-        self.det, self.g, self.kappa, self.gamma = par.assign(
-                detuning, coupling_const, kappa, gamma 
+        self.det, self.g, self.kappa, self.gamma, self.v, self.phi = par.assign(
+                detuning, coupling_const, kappa, gamma, drive, phase
         )
         self.det_wc = par.freqs("cavity", self.det)
         self.det_ws = par.freqs("spin", self.det)
@@ -29,11 +29,13 @@ class Par():
     def times(self):
         N = 3*(2*math.pi); # number of cycles [rad]
         n = 90; # number of points per cycle
-        tau = 1 / self.scaled(self.g)    # coherence (or observation) time length
+        # tau = 1 / self.scaled(self.g)    # coherence (or observation) time length
+        tau = 1 / self.scaled(self.kappa)
         t_max = N * tau;
         w_max = max(
             self.scaled(self.gamma), self.scaled(self.kappa), 
-            self.scaled(self.g), self.scaled(self.det)
+            self.scaled(self.g), self.scaled(self.det), 
+            self.scaled(self.v)
         )
         T_min = 1 / w_max;
         dt = T_min / n;
@@ -59,7 +61,10 @@ class Operator():
         """coupling operator"""
         return self._a.dag()*self._sm + self._a*self._sm.dag()
 
-    def D(self): return self._sm + self._sm.dag();  # displacement operator
+    def Dsm(self): return self._sm + self._sm.dag();  # displacement operator
+
+    def Da(self, phi): 
+        return self._a*cmath.exp(-1j*phi) + cmath.exp(1j*phi)*self._a.dag();
 
     def JC_H(self, p):
         """
@@ -70,9 +75,9 @@ class Operator():
         for i in range(len(p.det_ws)):
             H.append( 
                 p.scaled(p.det_wc[i]) * self.Na()
-                    + p.scaled(p.det_ws[i]) * self.Nsm() 
+                    + p.scaled(p.det_ws[i]) * self.Nsm()
                     + p.scaled(p.g) * self.X()
-                    + p.scaled(par.v) * self.D()
+                    + p.scaled(p.v) * self.Da(p.phi)
             );
         return H
 

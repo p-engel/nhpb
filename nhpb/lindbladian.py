@@ -3,13 +3,13 @@
 from .definitions import Operator, Evolve, Par
 
 class Lindbladian(Operator):
-    def __init__(self, detuning, coupling_const, kappa, gamma):
+    def __init__(self, detuning, coupling_const, kappa, gamma, drive, phase):
         """
         hamiltonian: (Qobj)
         cops: list of collapse operators (Qobj)
         """
         super().__init__()
-        self.p = Par(detuning, coupling_const, kappa, gamma);  # parameter
+        self.p = Par(detuning, coupling_const, kappa, gamma, drive, phase);  # parameter
         self._L = None;  # Cache for the superoperator
 
     def dynamics(self):
