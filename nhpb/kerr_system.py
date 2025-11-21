@@ -1,7 +1,7 @@
 # declaration for system of two-coupled linear and nonlinear bossons. 
 # the linear mode is driven and the nonlinear mode has a Kerr-nonlinearity.
 # the output mode is the linear mode's operations in steady state
-from .definitions import Kerr_sys
+from .definitions import Kerr_sys, Evolve_ss
 
 
 class Kerr_sys():

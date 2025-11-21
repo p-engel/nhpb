@@ -2,9 +2,14 @@
 import math, cmath
 
 from qutip import basis, tensor, destroy, qeye, mesolve, liouvillian, \
-correlation_3op_2t
+correlation_3op_2t, steadystate, expect
 
 from . import par
+
+# constants
+cavity = 1
+qubit = 2
+
 
 class Par():
     """scaled parameters"""
@@ -141,9 +146,79 @@ class Evolve():
             corr_w = []
         return corr_op
 
-class Kerr_H():
-    """The Kerr-Hamiltonian"""
-    def __init__(self, wq, ):
 
+class Kerr_sys():
+    """The Kerr-Hamiltonian system"""
+    # constants
+    cavity = 1
+    qubit = 2
+    interaction = 3
+    displace = 4
+    kerr_nonlinear = 5
+
+    def __init__(self, delta_q, delta_cq, u, g, v, kappa_q, kappa_c):
+        self.wq = np.array(delta_q)
+        self.det = delta_cq
+        self.u = u
+        self.g = g
+        self.v = v
+        self.kappa_q = kappa_q
+        self.kappa_c = kappa_c
+        self.ac = tensor(destroy(par.N), qeye(par.N));
+        self.aq = tensor(qeye(par.N), destroy(par.N))
+    
+    def N(self, mode): 
+        match mode
+            case cavity: return self.ac.dag() * self.ac
+            case qubit: return self.aq.dag() * self.aq
+            case _: "Undefined mode"
+
+    def X(self): 
+        """coupling operator"""
+        return self.ac.dag()*self.aq + self.aq.dag()*self.ac
+
+    def D(self):
+        """displacement operator"""
+        return self.aq + self.aq.dag();
+
+    def N2(self):
+        """Kerr nonlinear operator"""
+        return self.aq.dag() * self.aq.dag() * self.aq * self.aq
+
+    def H(self, mode):
+        match mode
+            case cavity: return self.det * self.N(cavity)
+            case qubit: return self.wq * self.N(qubit)
+            case interaction: return self.g * self.X()
+            case displace: return self.v * self.D()
+            case kerr_nonlinear: return self.u/2 * self.N2()
+            case _: "undefined Hamiltonian term"
+
+    def Hs(self):
+        """system Hamiltonian"""
+        sys = self.H(cavity) + self.H(qubit) + self.H(interaction) \
+            + self.H(kerr_nonlinear) + self.H(displace)
+        return sys
+
+    def cops(self):
+        """collapse operator with n_th = 0"""
+        sqrt_kappa_c = self.kappa_c ** 0.5;
+        sqrt_kappa_q = self.Kappa_q ** 0.5;
+        return [sqrt_kappa_c*self.ac, sqrt_kappa_q*self.aq];
+
+
+class Evolve_ss():
+    def __init__(self, H, cops):
+        """steady state solution of the system's Lindbladian"""
+        self.H = H
+        self.cops = cops
+
+    def rho_ss(self): return steadystate(self.H, self.cops)
+
+    def expect_ss(self, op):
+        """expectation value of operator <op>"""
+        rho_f = self.rho_ss()
+        return expect(op, rho_f)
+        
 
 ############1234567
