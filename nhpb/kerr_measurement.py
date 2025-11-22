@@ -1,5 +1,4 @@
-from qutip import *
-import numpy as np
+from qutip import steadystate, expect
 from .kerr_system import KerrSystem
 # ============================================================
 # KerrMeasurement — steady state observables

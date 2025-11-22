@@ -1,5 +1,5 @@
 import numpy as np
-from qutip import basis, tensor, destroy, qeye, steadystate, expect
+from qutip import basis, tensor, destroy, qeye
 
 # ============================================================
 # Class — KerrSystem
