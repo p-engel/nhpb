@@ -1,38 +1,143 @@
-# declaration for system of two-coupled linear and nonlinear bossons. 
-# the linear mode is driven and the nonlinear mode has a Kerr-nonlinearity.
-# the output mode is the linear mode's operations in steady state
-from .definitions import Kerr_sys, Evolve_ss
+import numpy as np
+from qutip import basis, tensor, destroy, qeye, steadystate, expect
 
+# ============================================================
+# Class — KerrSystem
+# ============================================================
 
-class Kerr_sys():
-    """The Kerr-Hamiltonian"""
-    def __init__(self, wq, det, u, g, v, kappa_q, kappa_c):
+class KerrSystem:
+    """
+    Represents a driven cavity coupled to a Kerr nonlinear cavity.
+    Defines operators, Hamiltonian components, and collapse operators.
+    """
+
+    def __init__(
+        self,
+        N_c: int = 10,
+        N_q: int = 10,
+        delta_cq: float = 0,
+        delta_q: float = 0,
+        g: float = 0.0,
+        kappa_c: float = 0.0,
+        kappa_q: float = 0.0,
+        drive: float = 0.0,
+        kerr: float = 0.0,
+    ):
         """
-        hbar = 1
-        wq - float: resonance energy of nonlinear mode
-        det - float: detuning energy of linear and nonlinear mode
-        u - float: energy proportional to Kerr nonlinearity
-        g - float: interaction energy between the modes
-        v - float: intercation energy between linear mode and CW laser
-        kappa - float: dissipation energy of nonlinear and linear mode q, c
+        Parameters [units of rate]
+        ----------
+        N_c         : cavity Hilbert dimension
+        N_q         : Kerr cavity Hilbert dimension
+        delta_cq    : linear--nonlinear cavity detuning frequency
+        delta_q     : nonlinear cavity--drive detuning frequency
+        g           : coupling constant rate
+        kappa_c     : cavity decay rate
+        kappa_q     : qubit decay rate
+        drive       : driving rate on cavity
+        kerr        : Kerr nonlinearity strength
         """
-        self.kerr_H = Kerr_sys(wq, det, u, g, v, kappa_q, kappa_c)
 
-    def one_photon(self):
-        """single photon amplitude in output mode"""
-        return self.kerr_H.one_photon()  # [np 1d array]
+        # store parameters
+        self.N_c = N_c
+        self.N_q = N_q
+        self.delta_cq = delta_cq
+        self.delta_q = delta_q
+        self.g = g
+        self.kappa_c = kappa_c
+        self.kappa_q = kappa_q
+        self.drive = drive
+        self.kerr = kerr
 
-    def two_photon(self):
-        """two photon amplitude in output mode"""
-        return self.kerr_H.two_photon()  # [np 1d array]
+        # ---------------------
+        # Operators
+        # ---------------------
+        self.a_c = tensor(destroy(N_c), qeye(N_q))
+        self.a_q = tensor(qeye(N_c), destroy(N_q))
 
-    def photon_number(self):
-        """average photon number in output mode"""
-        return self.kerr_H.N()  # [np 1d array]
+        self.n_c = self.a_c.dag() * self.a_c
+        self.n_q = self.a_q.dag() * self.a_q
 
-    def g2():
-        """normalized second order correlatoion"""
-        mod_twophoton = np.absolute(self.two_photon)
-        mod_onephoton = np.absolute(self.one_photon)
-        g2 = (mod_twophoton ** 2) / (mod_onephoton ** 4)
-        return g2  # [np 1d array]
+    # ---------------------------
+    # Hamiltonian pieces
+    # ---------------------------
+
+    def H_c(self): return self.delta_cq * self.n_c
+
+    def H_qc(self):
+        return self.delta_q * (self.n_q + self.n_c)
+
+    def H_interaction(self):
+        return self.g * (self.a_c * self.a_q.dag() +
+                         self.a_c.dag() * self.a_q)
+
+    def H_drive(self):
+        """Drive term: ε (a e^{-iφ} + a† e^{iφ})"""
+        return self.drive * (self.a_c + self.a_c.dag())
+
+    def H_kerr(self):
+        """Kerr term: χ a† a† a a"""
+        return self.kerr * (self.a_c.dag() * self.a_c.dag() * 
+                            self.a_c * self.a_c)
+
+    def H(self):
+        """Full system Hamiltonian"""
+        return (
+            self.H_c()
+            + self.H_qc()
+            + self.H_interaction()
+            + self.H_drive()
+            + self.H_kerr()
+        )
+
+    # -----------------------------
+    # Collapse operators
+    # -----------------------------
+
+    def collapse_ops(self):
+        cops = []
+        if self.kappa_c > 0:
+            cops.append(np.sqrt(self.kappa_c) * self.a_c)
+        if self.kappa_q > 0:
+            cops.append(np.sqrt(self.kappa_q) * self.a_q)
+        return cops
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

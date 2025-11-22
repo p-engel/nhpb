@@ -168,7 +168,7 @@ class Kerr_sys():
         self.aq = tensor(qeye(par.N), destroy(par.N))
     
     def N(self, mode): 
-        match mode
+        match mode:
             case cavity: return self.ac.dag() * self.ac
             case qubit: return self.aq.dag() * self.aq
             case _: "Undefined mode"
@@ -186,7 +186,7 @@ class Kerr_sys():
         return self.aq.dag() * self.aq.dag() * self.aq * self.aq
 
     def H(self, mode):
-        match mode
+        match mode:
             case cavity: return self.det * self.N(cavity)
             case qubit: return self.wq * self.N(qubit)
             case interaction: return self.g * self.X()
@@ -203,7 +203,7 @@ class Kerr_sys():
     def cops(self):
         """collapse operator with n_th = 0"""
         sqrt_kappa_c = self.kappa_c ** 0.5;
-        sqrt_kappa_q = self.Kappa_q ** 0.5;
+        sqrt_kappa_q = self.kappa_q ** 0.5;
         return [sqrt_kappa_c*self.ac, sqrt_kappa_q*self.aq];
 
 
@@ -219,6 +219,6 @@ class Evolve_ss():
         """expectation value of operator <op>"""
         rho_f = self.rho_ss()
         return expect(op, rho_f)
-        
+
 
 ############1234567
