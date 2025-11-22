@@ -2,3 +2,4 @@ nhpb/__pycache__/
 notebooks/.ipynb_checkpoints/
 notebooks/
 nhpb/.ipynb_checkpoints/
+nhpb/definitions.py
