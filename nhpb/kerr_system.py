@@ -76,8 +76,8 @@ class KerrSystem:
 
     def H_kerr(self):
         """Kerr term: χ a† a† a a"""
-        return self.kerr * (self.a_c.dag() * self.a_c.dag() * 
-                            self.a_c * self.a_c)
+        return self.kerr * (self.a_q.dag() * self.a_q.dag() * 
+                            self.a_q * self.a_q)
 
     def H(self):
         """Full system Hamiltonian"""

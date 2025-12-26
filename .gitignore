@@ -3,3 +3,4 @@ notebooks/.ipynb_checkpoints/
 notebooks/
 nhpb/.ipynb_checkpoints/
 nhpb/definitions.py
+unit_test/__pycache__/
