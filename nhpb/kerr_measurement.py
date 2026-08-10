@@ -40,7 +40,7 @@ class KerrMeasurement:
     # ---------------------------------------------------------
     def occupation(self):
         """<a† a>"""
-        return self.expect_ss(self.sys.n_cav)
+        return self.expect_ss(self.sys.n_c)
 
     def g2(self):
         """g^(2) = |<a a>|^2 / |<a>|^4"""
@@ -50,7 +50,7 @@ class KerrMeasurement:
 
     def g2_normal_ordered(self):
         """<a† a† a a> / <a† a>^2"""
-        a = self.sys.a_cav
+        a = self.sys.a_c
         num = self.expect_ss(a.dag() * a.dag() * a * a)
         den = self.occupation() ** 2
         return num / den
