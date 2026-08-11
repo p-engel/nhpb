@@ -90,7 +90,7 @@ cavity mode
   number
 
 - $N / N_{g=0}$ - photon number normalised to the uncoupled
-  (`$g=0$`) system
+  ($g=0$) system
 
 - $g^{(2)}(0)$ - equal-time second-order correlation, evaluated
   both from the ansatz amplitudes and from the normal-ordered Lindblad
