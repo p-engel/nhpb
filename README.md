@@ -66,7 +66,7 @@ density operator,
 
 ```math
 \begin{aligned}
-\dot{\rho} &= -i[H, \rho] + \gamma\mathcal{D}[a]\rho
+\frac{{\rm d}\rho}{{\rm d}t} &= -i[H, \rho] + \gamma\mathcal{D}[a]\rho
   + \kappa\mathcal{D}[c]\rho
 \\
 \mathcal{D}[o] &= o \rho o^{\dagger} - \tfrac{1}{2}\{o^{\dagger} o, \rho\}
