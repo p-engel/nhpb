@@ -3,4 +3,6 @@ notebooks/
 nhpb/.ipynb_checkpoints/
 doc/
 unit_test/__pycache__/
-.nhpb
+.nhpb*.egg-info/
+*~
+.nhpb/
